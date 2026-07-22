@@ -3,10 +3,18 @@
 
 set -Eeuo pipefail
 
-readonly INSTALLER_VERSION="1.0.0"
+readonly INSTALLER_VERSION="1.0.1"
 readonly REPOSITORY="chevy-type/proxmox-groupware-lxc"
 readonly REPOSITORY_REF="${GROUPWARE_REPOSITORY_REF:-main}"
 readonly RAW_BASE="https://raw.githubusercontent.com/${REPOSITORY}/${REPOSITORY_REF}/install/parts"
+
+# A fresh Debian LXC does not necessarily contain curl. The bootstrap must
+# therefore install its own download dependency before fetching modules.
+if ! command -v curl >/dev/null 2>&1; then
+  export DEBIAN_FRONTEND=noninteractive
+  apt-get update
+  apt-get install -y --no-install-recommends ca-certificates curl
+fi
 
 TMP_INSTALLER="$(mktemp /tmp/groupware-container-installer.XXXXXX)"
 cleanup() { rm -f "$TMP_INSTALLER"; }
