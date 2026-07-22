@@ -6,7 +6,7 @@
 set -Eeuo pipefail
 shopt -s inherit_errexit 2>/dev/null || true
 
-readonly INSTALLER_VERSION="1.0.3"
+readonly INSTALLER_VERSION="1.0.4"
 readonly ENV_FILE="/root/groupware-installer.env"
 
 log()  { printf '\033[1;34m[INFO]\033[0m %s\n' "$*"; }
