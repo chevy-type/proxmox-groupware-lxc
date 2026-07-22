@@ -77,12 +77,19 @@ text = f'''{{
   SOGoSoftQuotaRatio = 0.9;
   SOGoMaximumFailedLoginCount = 0;
   SOGoMaximumMessageSizeLimit = 0;
-}};
+}}
 '''
 Path('/etc/sogo/sogo.conf').write_text(text)
 PY
 chown root:sogo /etc/sogo/sogo.conf
 chmod 0640 /etc/sogo/sogo.conf
+
+# A package-created per-user defaults file has precedence over /etc/sogo/sogo.conf.
+# Preserve it for reference but keep the generated installer configuration authoritative.
+if [[ -f /var/lib/sogo/GNUstep/Defaults/.GNUstepDefaults ]]; then
+  mv /var/lib/sogo/GNUstep/Defaults/.GNUstepDefaults \
+    /var/lib/sogo/GNUstep/Defaults/.GNUstepDefaults.package-backup
+fi
 
 cat >/etc/default/sogo <<'EOF'
 PREFORK=4
