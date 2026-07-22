@@ -5,10 +5,10 @@
 
 set -Eeuo pipefail
 
-readonly SCRIPT_VERSION="1.0.4"
+readonly SCRIPT_VERSION="1.0.5"
 readonly CORE_COMMIT="d0198ae10364bc9aadcac1948ca0e2e97d644cf5"
 readonly CORE_URL="https://raw.githubusercontent.com/chevy-type/proxmox-groupware-lxc/${CORE_COMMIT}/ct/groupware.sh"
-readonly INSTALL_URL_104="https://raw.githubusercontent.com/chevy-type/proxmox-groupware-lxc/main/install/groupware-install-1.0.4.sh"
+readonly INSTALL_URL_105="https://raw.githubusercontent.com/chevy-type/proxmox-groupware-lxc/main/install/groupware-install-1.0.5.sh"
 
 TMP_CORE="$(mktemp /tmp/groupware-lxc-core.XXXXXX)"
 TMP_PATCHED="$(mktemp /tmp/groupware-lxc-patched.XXXXXX)"
@@ -17,9 +17,9 @@ trap cleanup EXIT
 
 curl -fsSL --retry 3 "$CORE_URL" -o "$TMP_CORE"
 
-awk -v install_url="$INSTALL_URL_104" '
+awk -v install_url="$INSTALL_URL_105" '
   $0 == "readonly SCRIPT_VERSION=\"1.0.0\"" {
-    print "readonly SCRIPT_VERSION=\"1.0.4\""
+    print "readonly SCRIPT_VERSION=\"1.0.5\""
     next
   }
 
