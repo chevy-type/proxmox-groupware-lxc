@@ -6,7 +6,7 @@
 set -Eeuo pipefail
 shopt -s inherit_errexit 2>/dev/null || true
 
-readonly INSTALLER_VERSION="1.0.0"
+readonly INSTALLER_VERSION="1.0.3"
 readonly ENV_FILE="/root/groupware-installer.env"
 
 log()  { printf '\033[1;34m[INFO]\033[0m %s\n' "$*"; }
@@ -19,7 +19,7 @@ on_error() {
   printf '\n[FEHLER] Container-Installation in Zeile %s abgebrochen (Exit %s).\n' "${1:-?}" "$rc" >&2
   printf 'Logs: journalctl -u sogo -u dovecot -u postfix -u nginx --no-pager -n 200\n' >&2
   if [[ -f "$ENV_FILE" ]]; then
-    shred -u "$ENV_FILE" 2>/dev/null || rm -f "$ENV_FILE"
+    printf 'Die Installationsdaten bleiben für einen erneuten Versuch unter %s erhalten.\n' "$ENV_FILE" >&2
   fi
   exit "$rc"
 }
@@ -81,11 +81,14 @@ apt-get install -y --no-install-recommends sogo sope4.9-gdl1-mysql
 SOGO_VERSION="$(dpkg-query -W -f='${Version}' sogo)"
 dpkg --compare-versions "$SOGO_VERSION" ge '5.12.9' || die "SOGo >= 5.12.9 erforderlich, installiert ist $SOGO_VERSION."
 
-# Das freie Repository liefert Nightly-Builds. Den erfolgreich installierten
-# Stand festhalten; Updates erfolgen bewusst und nicht nebenbei per apt.
+# Das freie Repository liefert Nightly-Builds. Nur tatsächlich installierte
+# SOGo-/SOPE-Pakete festhalten. dpkg-query liefert bei Wildcards teilweise
+# auch bekannte, aber nicht installierte Paketnamen; apt-mark lehnt diese ab.
 mapfile -t SOGO_HOLD_PACKAGES < <(
-  dpkg-query -W -f='${binary:Package}\n' 'sogo*' 'sope*' 'libsope*' 2>/dev/null |
-    sed 's/:.*$//' | sort -u
+  { dpkg-query -W -f='${binary:Package}\t${db:Status-Abbrev}\n' \
+      'sogo*' 'sope*' 'libsope*' 2>/dev/null || true; } |
+    awk '$2 ~ /^ii/ {sub(/:.*/, "", $1); print $1}' |
+    sort -u
 )
 if (( ${#SOGO_HOLD_PACKAGES[@]} > 0 )); then
   apt-mark hold "${SOGO_HOLD_PACKAGES[@]}" >/dev/null
