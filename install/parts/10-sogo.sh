@@ -29,7 +29,8 @@ text = f'''{{
   SOGoVacationEnabled = NO;
   SOGoForwardEnabled = NO;
   SOGoSieveScriptsEnabled = NO;
-  SOGoMailAuxiliaryUserAccountsEnabled = NO;
+  SOGoMailAuxiliaryUserAccountsEnabled = YES;
+  SOGoCreateIdentitiesDisabled = NO;
   SOGoEnablePublicAccess = NO;
 
   OCSFolderInfoURL = {q(db + "/sogo_folder_info")};
