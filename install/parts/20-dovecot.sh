@@ -32,7 +32,11 @@ instance_name = groupware
 
 ssl = no
 disable_plaintext_auth = no
-auth_mechanisms = xoauth2 oauthbearer
+# The listener is reachable only from localhost. SOGo sends the OIDC access
+# token as the PLAIN password for the primary account; the OAuth2 passdb then
+# validates that token with Authentik. This lets SOGo use ordinary PLAIN auth
+# directly for auxiliary IMAP accounts at external providers as well.
+auth_mechanisms = plain login xoauth2 oauthbearer
 auth_username_format = %Lu
 auth_verbose = yes
 
@@ -48,7 +52,7 @@ imapc_ssl_verify = yes
 
 passdb {
   driver = oauth2
-  mechanisms = xoauth2 oauthbearer
+  mechanisms = plain login xoauth2 oauthbearer
   args = /etc/dovecot/dovecot-oauth2.conf.ext
 }
 
