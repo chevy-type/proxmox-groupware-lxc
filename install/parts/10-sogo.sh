@@ -1,12 +1,12 @@
 log "Konfiguriere SOGo"
 install -d -o root -g sogo -m 0750 /etc/sogo
-python3 - "$FQDN" "$PUBLIC_URL" "$MAIL_DOMAIN" "$DB_USER" "$DB_PASSWORD" "$OIDC_DISCOVERY_URL" "$OIDC_CLIENT_ID" "$OIDC_CLIENT_SECRET" "$TIMEZONE" <<'PY'
+python3 - "$FQDN" "$PUBLIC_URL" "$MAIL_DOMAIN" "$DB_USER" "$DB_PASSWORD" "$OIDC_DISCOVERY_URL" "$OIDC_CLIENT_ID" "$OIDC_CLIENT_SECRET" "$TIMEZONE" "${AES_KEY_HEX:0:32}" <<'PY'
 from pathlib import Path
 import sys
 
 (
     fqdn, public_url, mail_domain, db_user, db_password,
-    discovery_url, client_id, client_secret, timezone,
+    discovery_url, client_id, client_secret, timezone, sogo_secret,
 ) = sys.argv[1:]
 
 def q(value: str) -> str:
@@ -31,6 +31,8 @@ text = f'''{{
   SOGoSieveScriptsEnabled = NO;
   SOGoMailAuxiliaryUserAccountsEnabled = YES;
   SOGoCreateIdentitiesDisabled = NO;
+  SOGoSecretType = plain;
+  SOGoSecretValue = {q(sogo_secret)};
   SOGoEnablePublicAccess = NO;
 
   OCSFolderInfoURL = {q(db + "/sogo_folder_info")};
