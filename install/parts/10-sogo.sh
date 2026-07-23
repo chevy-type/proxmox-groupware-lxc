@@ -71,7 +71,11 @@ text = f'''{{
   SOGoMailingMechanism = smtp;
   SOGoForceExternalLoginWithEmail = YES;
   SOGoMailShowSubscribedFoldersOnly = NO;
-  NGImap4AuthMechanism = xoauth2;
+  // PLAIN is intentional: the primary account passes its OIDC access token as
+  // the password to the local Dovecot OAuth2 passdb, while auxiliary accounts
+  // authenticate directly against their configured IMAP server with their own
+  // stored mailbox password.
+  NGImap4AuthMechanism = plain;
   NGImap4DisableIMAP4Pooling = YES;
   SOGoSMTPAuthenticationType = xoauth2;
 
